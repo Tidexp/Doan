@@ -48,12 +48,15 @@ Return JSON only:
 {
   "entities": [{"label":"...", "type":"PERSON|ORG|POLICY|CONCEPT|SYSTEM|PLACE|OTHER"}],
   "relations": [{"from":"entity label", "to":"entity label", "predicate":"short verb phrase"}],
-  "conflicts": [{"left":"claim A", "right":"claim B", "reason":"why they conflict"}]
+  "conflicts": [{"left":"specific claim or value from text", "right":"contradicting claim or value from text", "reason":"brief explanation"}]
 }
 Rules:
 - Max 15 entities.
 - Prefer domain terms, policies, systems, people, departments.
 - Relations must use entity labels that appear in entities.
+- For conflicts: extract the EXACT contradicting statements or values as they appear in the text. Do not leave them null.
+- Example conflict: {"left":"Mã SV: 20110001", "right":"Mã SV: 20110002", "reason":"Mâu thuẫn về mã sinh viên"}
+
 Chunk:
 """${content.slice(0, 6000)}"""`;
 
@@ -92,7 +95,7 @@ Chunk:
       right: (c.right ?? "").trim(),
       reason: (c.reason ?? "").trim(),
     }))
-    .filter((c) => c.left && c.right);
+    .filter((c) => c.left && c.right && c.left !== "null" && c.right !== "null");
 
   return { entities, relations, conflicts };
 }

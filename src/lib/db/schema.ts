@@ -98,8 +98,8 @@ export const documentChunks = pgTable(
       .notNull()
       .references(() => sources.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
-    // Gemini text-embedding-004 = 768 dims. Keep this in sync with GEMINI_EMBEDDING_MODEL.
-    embedding: vector("embedding", { dimensions: 768 }),
+    // Gemini embedding-2 = 3072 dims. Keep this in sync with GEMINI_EMBEDDING_MODEL.
+    embedding: vector("embedding", { dimensions: 3072 }),
     metadata: jsonb("metadata")
       .$type<{
         chunkIndex: number;

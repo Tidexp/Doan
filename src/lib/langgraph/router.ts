@@ -92,13 +92,13 @@ async function answerNode(state: typeof RagState.State) {
 }
 
 const compiled = new StateGraph(RagState)
-  .addNode("route", routeNode)
+  .addNode("classify", routeNode)
   .addNode("retrieve", retrieveNode)
-  .addNode("answer", answerNode)
-  .addEdge(START, "route")
-  .addEdge("route", "retrieve")
-  .addEdge("retrieve", "answer")
-  .addEdge("answer", END)
+  .addNode("generate", answerNode)
+  .addEdge(START, "classify")
+  .addEdge("classify", "retrieve")
+  .addEdge("retrieve", "generate")
+  .addEdge("generate", END)
   .compile();
 
 export async function runRag(input: {

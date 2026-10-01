@@ -30,8 +30,10 @@ export function answerModel() {
 }
 
 export function embeddingModel() {
+  const modelName = env().GEMINI_EMBEDDING_MODEL;
+  console.log(`Using embedding model: ${modelName}`);
   return gemini().getGenerativeModel({
-    model: env().GEMINI_EMBEDDING_MODEL,
+    model: modelName,
   });
 }
 

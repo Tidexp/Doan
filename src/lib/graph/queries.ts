@@ -110,7 +110,9 @@ export async function upsertGraphBatch(payloads: GraphPayload[]) {
         `
         UNWIND $rows AS row
         MERGE (a:Entity {canonicalLabel: toLower(row.left), sourceId: row.sourceId, chunkId: row.chunkId})
+        SET a.label = row.left, a.type = 'CLAIM'
         MERGE (b:Entity {canonicalLabel: toLower(row.right), sourceId: row.sourceId, chunkId: row.chunkId})
+        SET b.label = row.right, b.type = 'CLAIM'
         MERGE (a)-[r:CONFLICTS_WITH]->(b)
         SET r.reason = row.reason
         `,
@@ -182,6 +184,24 @@ export async function traverseRelatedChunks(
       entity: record.get("entity") as string,
       hops: Number(record.get("hops")),
     }));
+  } finally {
+    await session.close();
+  }
+}
+
+export async function deleteGraphBySourceId(sourceId: string) {
+  const neo = getNeo4j();
+  if (!neo) return;
+  const session = neo.session();
+  try {
+    // Delete all entities and relationships for this source
+    await session.run(
+      `
+      MATCH (e:Entity {sourceId: $sourceId})
+      DETACH DELETE e
+      `,
+      { sourceId },
+    );
   } finally {
     await session.close();
   }

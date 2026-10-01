@@ -65,3 +65,21 @@ export async function canAccessSource(user: AccessUser, sourceId: string) {
     .limit(1);
   return Boolean(perm);
 }
+
+export async function canModifySource(user: AccessUser, sourceId: string) {
+  // Only admins and the uploader can delete/modify documents
+  if (user.role === "admin") return true;
+
+  const [row] = await db
+    .select({ uploadedBy: sources.uploadedBy })
+    .from(sources)
+    .where(eq(sources.id, sourceId))
+    .limit(1);
+
+  return row && row.uploadedBy === user.id;
+}
+
+export function canUploadDocuments(user: AccessUser) {
+  // Guests cannot upload documents
+  return user.role !== "guest";
+}

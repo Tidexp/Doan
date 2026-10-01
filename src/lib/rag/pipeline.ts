@@ -6,6 +6,7 @@ import { setSourceStatus, timedStep } from "@/lib/db/logger";
 import { env, hasGemini, hasNeo4j } from "@/lib/env";
 import { ensureGraphIndexes } from "@/lib/graph/client";
 import { upsertGraphBatch, type GraphPayload } from "@/lib/graph/queries";
+import { detectCrossDocumentConflicts } from "@/lib/graph/cross-document-conflicts";
 import { chunkByHeading } from "./chunk";
 import { flagNearDuplicates } from "./dedup";
 import { embedText } from "./embeddings";
@@ -121,6 +122,14 @@ export async function processSource(sourceId: string) {
         await upsertGraphBatch(graphPayloads);
       });
       await setSourceStatus(sourceId, "graph_ready");
+
+      // Optional: Detect cross-document conflicts (can be slow/expensive)
+      // Enable by setting ENABLE_CROSS_DOCUMENT_CONFLICTS=true in .env
+      if (process.env.ENABLE_CROSS_DOCUMENT_CONFLICTS === "true") {
+        await timedStep(sourceId, "cross_document_conflicts", async () => {
+          await detectCrossDocumentConflicts(sourceId);
+        });
+      }
     }
 
     await timedStep(sourceId, "dedup", () => flagNearDuplicates(sourceId));
