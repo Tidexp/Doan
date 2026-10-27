@@ -50,6 +50,7 @@ export const users = pgTable(
     image: text("image"),
     passwordHash: text("password_hash"),
     role: userRoleEnum("role").notNull().default("employee"),
+    active: boolean("active").notNull().default(true),
     departmentId: uuid("department_id").references(() => departments.id, {
       onDelete: "set null",
     }),

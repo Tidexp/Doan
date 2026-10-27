@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Trash2, Search, AlertCircle, CheckSquare, Square } from "lucide-react";
+import { DriveImportButton } from "./drive-import-button";
 
 type SourceRow = {
   id: string;
@@ -327,6 +328,19 @@ export default function DocumentsPage() {
           >
             {busy ? "Đang gửi..." : "Đưa vào hàng đợi"}
           </button>
+          {process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY &&
+          process.env.NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID &&
+          process.env.AUTH_GOOGLE_ID ? (
+            <DriveImportButton
+              clientId={process.env.AUTH_GOOGLE_ID}
+              apiKey={process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY}
+              appId={process.env.NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID}
+              departmentId={departmentId}
+              disabled={busy || !departmentId}
+              onMessage={setMessage}
+              onImported={load}
+            />
+          ) : null}
         </div>
         <p className="text-sm text-[var(--muted)] mt-3">
           API chỉ lưu file thô rồi enqueue BullMQ — không chờ extraction.

@@ -23,6 +23,8 @@ export async function GET() {
         name: users.name,
         email: users.email,
         role: users.role,
+        active: users.active,
+        departmentId: users.departmentId,
         departmentName: departments.name,
       })
       .from(users)

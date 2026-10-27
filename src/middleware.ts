@@ -1,8 +1,13 @@
-import { auth } from "@/auth";
+import { getToken } from "next-auth/jwt";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = Boolean(req.auth);
+export default async function middleware(req: NextRequest) {
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+  });
+  const isLoggedIn = typeof token?.id === "string" && Boolean(token.id);
   const path = req.nextUrl.pathname;
   const publicPath =
     path.startsWith("/login") ||
@@ -21,7 +26,7 @@ export default auth((req) => {
     url.pathname = "/documents";
     return NextResponse.redirect(url);
   }
-});
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|.*\\.png$).*)"],

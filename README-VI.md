@@ -48,6 +48,18 @@ Knowledge OS là hệ thống RAG (Retrieval-Augmented Generation) hoàn chỉnh
    AUTH_SECRET=<chuỗi random vừa tạo>
    ```
 
+4. **Bật đăng nhập Google (tùy chọn)**:
+   - Tạo OAuth Client ID loại **Web application** trong Google Cloud Console.
+   - Thêm URI chuyển hướng:
+     - Local: `http://localhost:3000/api/auth/callback/google`
+     - Production: `https://<domain-cua-ban>/api/auth/callback/google`
+   - Điền `AUTH_GOOGLE_ID` và `AUTH_GOOGLE_SECRET` vào `.env`.
+   - Khi đang ở chế độ kiểm thử OAuth, thêm tài khoản Google dùng để đăng nhập vào danh sách test users.
+   - Tạo người dùng trong trang quản trị với đúng email Google và chọn **Đăng nhập bằng Google**.
+   - Để giới hạn theo domain, đặt `AUTH_GOOGLE_ALLOWED_DOMAIN=company.com`. Để trống phù hợp cho bản demo; chỉ email đã được quản trị viên cấp mới đăng nhập được.
+   - Để bật nhập tài liệu từ Google Drive, bật **Google Drive API** và **Google Picker API** trong cùng Cloud project. Tạo API key, giới hạn theo HTTP referrer và chỉ cho phép Google Picker API; thêm API key vào `NEXT_PUBLIC_GOOGLE_DRIVE_API_KEY` và project number vào `NEXT_PUBLIC_GOOGLE_DRIVE_APP_ID`.
+   - Thêm `http://localhost:3000` (và domain production) vào Authorized JavaScript origins của OAuth client. Drive Picker chỉ xin quyền `drive.file` để truy cập các tệp người dùng chọn; Google Docs/Sheets/Slides được xuất thành PDF. Các tệp khác chỉ hỗ trợ PDF, DOCX, Markdown và TXT.
+
 ### Bước 2: Chạy setup script
 
 **Windows**:
@@ -118,6 +130,8 @@ npm run worker
 - Vào trang **Admin** (`/admin`)
 - Xem thống kê: số tài liệu, chunks, người dùng
 - Quản lý quyền truy cập
+- Có thể nhập danh sách người dùng hàng loạt bằng CSV tại mục quản trị tài khoản. Tệp cần cột `name,email`; `role` và `department` là tùy chọn. Xem trước để kiểm tra lỗi trước khi xác nhận. Email trùng tài khoản hiện có hoặc lặp trong tệp sẽ bị bỏ qua.
+- Tài khoản nhập từ CSV dùng Google để đăng nhập; phòng ban phải khớp tên hoặc slug đã tồn tại. Excel `.xlsx` chưa được hỗ trợ; hãy lưu bảng tính thành CSV UTF-8 trước khi tải lên.
 
 ## Kiến trúc hệ thống
 
